@@ -1,43 +1,29 @@
-version: '2'
 services:
- transmission:
-  image: haugene/transmission-openvpn
-  secrets:
-    - openvpn_creds
-  cap_add:
-    - NET_ADMIN
-  devices:
-    - /dev/net/tun
-  restart: always
-  ports:
-    - "9091:9091"
-    # - "8888:8888" # proxy support
-  volumes:
-    - ./data:/data # where transmission will store the data
-    - ./config:/config  # where transmission-home is stored
-  environment:
-    - OPENVPN_PROVIDER=PIA
-    - OPENVPN_CONFIG=sweden,austria,italy,belgium
-    - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
-    - LOCAL_NETWORK=192.168.1.0/24
-    - HEALTH_CHECK_HOST=google.com
-    - TRANSMISSION_WEB_UI=combustion
+    transmission-openvpn:
+        secrets:
+          - openvpn_creds
+        cap_add:
+          - NET_ADMIN
+        devices:
+          - /dev/net/tun
+        restart: no
+        volumes:
+          - ${DATA_VOLUME}:/data # where transmission will store the data
+          - ${CONFIG_VOLUME}:/config  # where transmission-home is stored
+          - ${CUSTOM_VOLUME}:/etc/openvpn/custom/ #place for certificates and .ovpn file
+        environment:
+          - OPENVPN_PROVIDER=custom
+          - OPENVPN_CONFIG=${VPN_CONFIG}
+          - OPENVPN_OPTS=${VPN_OPTS}
+          - LOCAL_NETWORK=${LCL_NETWORK}
+          - HEALTH_CHECK_HOST=${HEALTHCHECK_HOST}
+        logging:
+            driver: json-file
+            options:
+                max-size: 20m
+        ports:
+            - '9091:9091'
+        image: haugene/transmission-openvpn
 secrets:
-    openvpn_creds:
-        file: ./openvpn_creds
-
- # proxy:
- #  image: haugene/transmission-openvpn-proxy
- #  links:
- #    - transmission
- #  ports:
- #    - 8080:8080
- #  volumes:
- #    - /etc/localtime:/etc/localtime:ro
-
- # rss:
- #  image: haugene/transmission-rss
- #  links:
- #    - transmission
- #  environment:
- #    - RSS_URL=http://.../xxxxx.rss
+  openvpn_creds:
+    file: ${CREDS_FILE}

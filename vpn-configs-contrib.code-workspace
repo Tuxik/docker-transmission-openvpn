@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../ovpn_providers/vpn-configs-contrib"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
