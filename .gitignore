@@ -2,3 +2,4 @@ openvpn_creds.bk
 data/
 config/
 .env
+openvpn_creds
