@@ -1,6 +1,8 @@
 version: '2'
 services:
  transmission:
+  secrets:
+    - openvpn_creds
   image: haugene/transmission-openvpn
   cap_add:
     - NET_ADMIN
@@ -11,14 +13,17 @@ services:
     - "9091:9091"
     # - "8888:8888" # proxy support
   volumes:
-    - /your/storage/path/:/data # where transmission will store the data
-    - /your/config/path/:/config # where transmission-home is stored
+    - ${DATA_VOLUME}:/data # where transmission will store the data
+    - ${CONFIG_VOLUME}:/config # where transmission-home is stored
+    - ${CUSTOM_VOLUME}:/etc/openvpn/custom # custom openvpn config
   environment:
-    - OPENVPN_PROVIDER=PIA
-    - OPENVPN_USERNAME=username
-    - OPENVPN_PASSWORD=password
+    - OPENVPN_PROVIDER=custom
+    - OPENVPN_CONFIG=${VPN_CONFIG}
+    - LOCAL_NETWORK=${LCL_NETWORK}
     - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
-    - LOCAL_NETWORK=192.168.0.0/24
+secrets:
+  openvpn_creds:
+    file: ${CREDS_FILE}
  # proxy:
  #  image: haugene/transmission-openvpn-proxy
  #  links:
